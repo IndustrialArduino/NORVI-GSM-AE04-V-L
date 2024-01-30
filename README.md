@@ -12,6 +12,8 @@ ESP32-WROOM32 Module
 LTE Connection
 Built-in 0.96 OLED Display
 Built-in Button on the front panel
+microSD Card Support
+DS3231 RTC with Battery Backup
 Digital Inputs
 Analog Inputs with 0-10V
 Transistor Outputs
