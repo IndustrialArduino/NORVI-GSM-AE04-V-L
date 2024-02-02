@@ -5,6 +5,7 @@
  * RTC Check
  * micro SD Card Check CS : 15
  * RS485
+ * SIM800C
  * All Output Turn ON Series
  * All input status serial print
  * 
@@ -32,7 +33,6 @@
 #define INPUT3 35
 #define INPUT4 14
 #define INPUT5 13
-#define INPUT6 5
 
 #define OUTPUT1 12
 #define OUTPUT2 2
@@ -43,7 +43,8 @@
 
 #define GSM_RX 33
 #define GSM_TX 32
-#define GSM_RESET 21
+
+#define SD_CS 15
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -56,11 +57,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_ADS1115 ads1;
 Adafruit_ADS1115 ads2;
 
+
+int analog_value = 0;
+
 RTC_DS3231 rtc; 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
-
-int analog_value = 0;
 
   
 int readSwitch(){
@@ -81,10 +83,10 @@ void setup() {
 
   Serial.println("Hello");
   Serial1.begin(9600, SERIAL_8N1, RS485_RX, RS485_TX); 
-  Serial2.begin(115200, SERIAL_8N1, GSM_RX, GSM_TX); 
+  Serial2.begin(9600, SERIAL_8N1, GSM_TX, GSM_RX); 
 
-  pinMode(GSM_RESET, OUTPUT);
-  digitalWrite(GSM_RESET, HIGH);   // RS-485 
+  //pinMode(GSM_RESET, OUTPUT);
+  //digitalWrite(GSM_RESET, HIGH);   // RS-485 
 
   pinMode(RS485_FC, OUTPUT);
   digitalWrite(RS485_FC, HIGH);   // RS-485 
@@ -92,15 +94,17 @@ void setup() {
   pinMode(OUTPUT1, OUTPUT);
   pinMode(OUTPUT2, OUTPUT);
 
-  pinMode(15, OUTPUT);
-  digitalWrite(15,HIGH);
-
   pinMode(INPUT1, INPUT);
   pinMode(INPUT2, INPUT);
   pinMode(INPUT3, INPUT);
   pinMode(INPUT4, INPUT);
   pinMode(INPUT5, INPUT);
   pinMode(INPUT6, INPUT);
+
+  
+  pinMode(SD_CS, OUTPUT);
+  digitalWrite(SD_CS,HIGH);
+
   
   Wire.begin(16,17);
 
@@ -121,12 +125,14 @@ void setup() {
   }
 
 
-  RTC_Check();
+
+    RTC_Check();
   delay(1000);
   SD_CHECK();
   delay(1000);
   
   Serial.println("Testing Modem");
+  
   
 
  timer1 = millis();
@@ -156,9 +162,6 @@ void setup() {
   }
 
    Serial.println("Testing Modem Done");
-
-   
-  //ETHERNET_CHECK();
 
   
   adcAttachPin(36);
@@ -219,6 +222,7 @@ void loop() {
   Serial.print("AIN6: "); Serial.print(adc1); Serial.println("  ");
   Serial.print("AIN7: "); Serial.print(adc2); Serial.println("  ");
   Serial.print("AIN8: "); Serial.print(adc3); Serial.println("  ");
+
 
 
   Serial.println(""); 
