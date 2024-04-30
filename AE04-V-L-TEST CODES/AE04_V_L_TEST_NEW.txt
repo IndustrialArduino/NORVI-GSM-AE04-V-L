@@ -5,7 +5,6 @@
  * RTC Check
  * micro SD Card Check CS : 15
  * RS485
- * SIM800C
  * All Output Turn ON Series
  * All input status serial print
  * 
@@ -28,11 +27,12 @@
 
 #define ANALOG_PIN_0 36
 
-#define INPUT1 39
+#define INPUT1 27
 #define INPUT2 34
 #define INPUT3 35
 #define INPUT4 14
 #define INPUT5 13
+#define INPUT6 5
 
 #define OUTPUT1 12
 #define OUTPUT2 2
@@ -43,8 +43,7 @@
 
 #define GSM_RX 33
 #define GSM_TX 32
-
-#define SD_CS 15
+#define GSM_RESET 21
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -57,12 +56,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_ADS1115 ads1;
 Adafruit_ADS1115 ads2;
 
-
-int analog_value = 0;
-
 RTC_DS3231 rtc; 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
+
+int analog_value = 0;
 
   
 int readSwitch(){
@@ -82,17 +80,23 @@ void setup() {
   Serial.begin(115200);
 
   Serial.println("Hello");
-  Serial1.begin(9600, SERIAL_8N1, RS485_RX, RS485_TX); 
-  Serial2.begin(9600, SERIAL_8N1, GSM_TX, GSM_RX); 
 
-  //pinMode(GSM_RESET, OUTPUT);
-  //digitalWrite(GSM_RESET, HIGH);   // RS-485 
-
+  
   pinMode(RS485_FC, OUTPUT);
   digitalWrite(RS485_FC, HIGH);   // RS-485 
   
+  Serial1.begin(9600, SERIAL_8N1, RS485_RX, RS485_TX); 
+  Serial2.begin(115200, SERIAL_8N1, GSM_RX, GSM_TX); 
+
+  pinMode(GSM_RESET, OUTPUT);
+  digitalWrite(GSM_RESET, HIGH);   // RS-485 
+
+  
   pinMode(OUTPUT1, OUTPUT);
   pinMode(OUTPUT2, OUTPUT);
+
+  pinMode(15, OUTPUT);
+  digitalWrite(15,HIGH);
 
   pinMode(INPUT1, INPUT);
   pinMode(INPUT2, INPUT);
@@ -100,11 +104,6 @@ void setup() {
   pinMode(INPUT4, INPUT);
   pinMode(INPUT5, INPUT);
   pinMode(INPUT6, INPUT);
-
-  
-  pinMode(SD_CS, OUTPUT);
-  digitalWrite(SD_CS,HIGH);
-
   
   Wire.begin(16,17);
 
@@ -125,14 +124,12 @@ void setup() {
   }
 
 
-
-    RTC_Check();
+  RTC_Check();
   delay(1000);
   SD_CHECK();
   delay(1000);
   
   Serial.println("Testing Modem");
-  
   
 
  timer1 = millis();
@@ -162,6 +159,9 @@ void setup() {
   }
 
    Serial.println("Testing Modem Done");
+
+   
+  //ETHERNET_CHECK();
 
   
   adcAttachPin(36);
@@ -224,7 +224,6 @@ void loop() {
   Serial.print("AIN8: "); Serial.print(adc3); Serial.println("  ");
 
 
-
   Serial.println(""); 
   Serial.print("Push button  ");Serial.println(readSwitch());
   Serial.println(""); 
@@ -240,9 +239,21 @@ void loop() {
   digitalWrite(OUTPUT2, LOW);
    
   Serial1.println("Hello RS-485");
-   
- //Serial2.println("AT");
- delay(1000);
+  
+  digitalWrite(RS485_FC, HIGH);                    // Make FLOW CONTROL pin HIGH
+  delay(500);
+  Serial1.println(F("RS485 01 SUCCESS"));    // Send RS485 SUCCESS serially
+  delay(500);                                // Wait for transmission of data
+  digitalWrite(RS485_FC, LOW) ;                    // Receiving mode ON
+
+                                             // Serial1.flush() ;
+  delay(500);     
+  
+  while (Serial1.available()) {  // Check if data is available
+    char c = Serial1.read();     // Read data from RS485
+    Serial.write(c);             // Print data on serial monitor
+  }
+ delay(500);
  
  
 }
