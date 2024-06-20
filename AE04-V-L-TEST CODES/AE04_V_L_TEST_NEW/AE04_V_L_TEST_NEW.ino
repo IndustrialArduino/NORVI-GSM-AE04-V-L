@@ -26,7 +26,7 @@
 #define INPUT3 35
 #define INPUT4 14
 #define INPUT5 13
-#define INPUT6 5
+#define INPUT6 4
 
 #define OUTPUT1 12
 #define OUTPUT2 2
