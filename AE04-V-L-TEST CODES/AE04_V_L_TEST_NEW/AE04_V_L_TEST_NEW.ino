@@ -2,7 +2,7 @@
  * RTC Check
  * micro SD Card Check 
  * RS485
- * SIM7500/EC25
+ * EC25 ADDON
  * All Output Turn ON Series
  * All input status serial print
  * Turns ON All Outputs in series
@@ -26,7 +26,7 @@
 #define INPUT3 35
 #define INPUT4 14
 #define INPUT5 13
-#define INPUT6 4
+#define INPUT6 5
 
 #define OUTPUT1 12
 #define OUTPUT2 2
@@ -174,8 +174,6 @@ void loop() {
 
   Serial.print("AIN5: "); Serial.print(adc0); Serial.println("  ");
   Serial.print("AIN6: "); Serial.print(adc1); Serial.println("  ");
-  Serial.print("AIN7: "); Serial.print(adc2); Serial.println("  ");
-  Serial.print("AIN8: "); Serial.print(adc3); Serial.println("  ");
 
   Serial.println(""); 
   Serial.print("Push button  ");
@@ -191,8 +189,7 @@ void loop() {
   digitalWrite(OUTPUT1, LOW);
   digitalWrite(OUTPUT2, LOW);
    
-  Serial1.println("Hello RS-485");
-  
+ 
   digitalWrite(RS485_FC, HIGH);                    // Make FLOW CONTROL pin HIGH
   delay(500);
   Serial1.println(F("RS485 01 SUCCESS"));    // Send RS485 SUCCESS serially
